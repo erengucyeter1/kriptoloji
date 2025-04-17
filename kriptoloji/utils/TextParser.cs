@@ -48,11 +48,12 @@ namespace kriptoloji
             return matrix;
         }
 
-        public static List<string> ParseTextIntoBlocks(string text, int blockSize)
+        public static List<string> ParseTextIntoBlocks(string text, int blockSize, bool specialKeys = false)
         {
             List<string> blocks = new List<string>();
 
             int remainder = text.Length % blockSize;
+            HashSet<string> usedChars = new HashSet<string>();
 
             if (remainder != 0)
             {
@@ -60,7 +61,17 @@ namespace kriptoloji
 
                 for (int i = 0; i < blockSize - remainder; i++)
                 {
-                    builder.Append(AlphabetHelper.GetRandomLetter());
+                    if (specialKeys)
+                    {
+                        string newChar = AlphabetHelper.GetRandomSpecialLetter(usedChars);
+                        builder.Append(newChar);
+                        usedChars.Add(newChar);
+
+                    }
+                    else
+                    {
+                        builder.Append(AlphabetHelper.GetRandomLetter());
+                    }
                 }
 
                 text = builder.ToString();
