@@ -477,6 +477,11 @@ namespace kriptoloji
             int keyMatrixLength = keyMatrix.GetLength(0);
             int[,] keyMatrixValues = getMatrixValues(keyMatrix);
 
+            if(calculateDeterminant(keyMatrixValues) == 0)
+            {
+                throw new Exception("Key matrix is not invertible");
+            }
+
             StringBuilder cryptedTextBuilder = new StringBuilder();
 
             List<string> blockString = TextParser.ParseTextIntoBlocks(input, keyMatrixLength);
@@ -513,6 +518,12 @@ namespace kriptoloji
             int[,] keyMatrixValues = getMatrixValues(keyMatrix);
             int keyMatrixLength = keyMatrix.GetLength(0);
             int determinant = calculateDeterminant(keyMatrixValues);
+
+            if(determinant == 0)
+            {
+                throw new Exception("Key matrix is not invertible");
+            }
+
             int[,] minors = calculateMinors(keyMatrixValues);
             int[,] cofactorMatrix = calculateCofactorMatrix(minors);
             cofactorMatrix = transpoz(cofactorMatrix);
