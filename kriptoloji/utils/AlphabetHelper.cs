@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 
 namespace kriptoloji
@@ -38,9 +39,36 @@ namespace kriptoloji
             return GetLetter(index);
         }
 
-        public static string GetRandomSpecialLetter(string language = "tr")
+        public static string GetRandomSpecialLetter(HashSet<string> usedChars ,string language = "tr")
         {
-            return "";
+            if(language == "tr")
+            {
+                int index = random.Next(0, 3);
+                string newChar = Enum.GetName(typeof(ExternalLettersForTurkish), index);
+
+                if(usedChars.Count == GetEnumLength(typeof(ExternalLettersForTurkish)))
+                {
+                    throw new Exception("All special letters are used");
+                }
+
+                if(usedChars.Contains(newChar))
+                {
+                    return GetRandomSpecialLetter(usedChars, language);
+                }
+                else
+                {
+                    usedChars.Add(newChar);
+                    return newChar;
+                }
+
+
+            }
+            else if (language == "en")
+            {
+                int index = random.Next(0, 6);
+                return Enum.GetName(typeof(ExternalLettersForEnglish), index);
+            }
+            return null;
         }
 
         public static string GetShuffledAlphabet( )
@@ -91,6 +119,15 @@ namespace kriptoloji
         public static int Mod(int value, int mod = 29)
         {
             return (value % mod + mod) % mod;
+        }
+
+        public static int GetEnumLength(Type enumType)
+        {
+            if (enumType.IsEnum)
+            {
+                return Enum.GetNames(enumType).Length;
+            }
+            throw new ArgumentException("Provided type is not an enum.");
         }
 
 
