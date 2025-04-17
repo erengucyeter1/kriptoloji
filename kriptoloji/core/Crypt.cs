@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using System.Xml.Linq;
 
 namespace kriptoloji
 {
@@ -28,6 +29,21 @@ namespace kriptoloji
                 this.Keys = keys;
         }
 
+
+        public static string getValueByName(object[] param, string name)
+        {
+            foreach (var item in param)
+            {
+                if (item is KeyValuePair<string, string> keyValue)
+                {
+                    if (keyValue.Key == name)
+                    {
+                        return keyValue.Value;
+                    }
+                }
+            }
+            return null;
+        }
 
     }
 
@@ -142,7 +158,7 @@ namespace kriptoloji
             return uniqueLetters.ToArray();
         }
 
-        public static string GetRandomRastgeleAlfabe()   // tüm sınıflar için aynı formatta isimlendirilmeli! GetRandom+DeğişkenAdı
+        public static string GetRandomRastgeleAlfabe( object[] param)   // tüm sınıflar için aynı formatta isimlendirilmeli! GetRandom+DeğişkenAdı
         {
             return  AlphabetHelper.GetShuffledAlphabet();
         }
@@ -458,6 +474,35 @@ namespace kriptoloji
 
         public  string Crypt(string input) => "not implemented yet!";
         public  string DeCrypt(string input) => "not implemented yet!";
+
+
+        public static string createRandomMatris(int columnCount)
+        {
+            string shuffledAlphabet =  AlphabetHelper.GetShuffledAlphabet();
+            return string.Join("",(TextParser.ParseTextIntoBlocks(shuffledAlphabet, columnCount, true)));
+
+        }
+
+        public static string GetRandomRastgeleMatris1(object[] param)
+        {
+            string valStr = getValueByName(param, "StunSayisi");
+
+            int columnCount;
+
+            if (!int.TryParse(valStr, out columnCount))
+            {
+                throw new Exception("Invalid column count");
+            }
+
+
+            return createRandomMatris(columnCount);
+        }
+
+        public static string GetRandomRastgeleMatris2( object[] param)
+        {
+            int columnCount = int.Parse(getValueByName(param, "StunSayisi"));
+            return createRandomMatris(columnCount);
+        }
     }
 
     public class Hill : Algorithm, ICryptAlgorithm
@@ -699,7 +744,7 @@ namespace kriptoloji
         }
 
 
-        public static string GetRandomAnahtarMatris()
+        public static string GetRandomAnahtarMatris(object[] param)
         {
             StringBuilder builder = new StringBuilder();
             Random random = new Random();
