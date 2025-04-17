@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Windows.Forms;
 using System.Xml.Linq;
@@ -463,17 +464,140 @@ namespace kriptoloji
 
     public class DortKare : Algorithm, ICryptAlgorithm
     {
-        public static string[] optionNames { get; } = { "StunSayisi", "RastgeleMatris1", "RastgeleMatris2" };
+        public static string[] optionNames { get; } = { "StunSayisi", "KeyMatris1", "KeyMatris2" };
 
         int columnCount => int.Parse(Keys["StunSayisi"]);
-        string randomMatrix1 => Keys["RastgeleMatris1"];
+        string keyMatrix1 => Keys["KeyMatris1"];
+        string keyMatrix2 => Keys["KeyMatris2"];
 
-        string randomMatrix2 => Keys["RastgeleMatris2"];
+
 
         public DortKare(Dictionary<string, string> keys) : base(keys) { }
 
-        public  string Crypt(string input) => "not implemented yet!";
-        public  string DeCrypt(string input) => "not implemented yet!";
+        public  string Crypt(string input){
+
+            MessageBox.Show(input);
+            char[][] key1 = ToMatrix(keyMatrix1);
+            char[][] key2 = ToMatrix(keyMatrix2);
+            char[][] alphabetMatrix = ToMatrix(AlphabetHelper.GetAlphabet(), true);
+            if (input.Length % 2 == 1)
+            {
+                input += AlphabetHelper.GetRandomLetter();
+            }
+
+            StringBuilder builder = new StringBuilder();
+
+
+
+            for(int i = 0; i <= input.Length -2; i +=2)
+            {
+                char firstLetter = input[i];
+                char secondLetter = input[i + 1];
+
+                (int row1, int col1) = GetIndex(alphabetMatrix, firstLetter);
+                (int row2, int col2) = GetIndex(alphabetMatrix, secondLetter);
+
+                char firstCryptedLetter = key1[row1][col2];
+                char secondCryptedLetter = key2[row2][col1];
+
+                builder.Append(firstCryptedLetter);
+                builder.Append(secondCryptedLetter);
+            }
+
+
+
+            return builder.ToString();
+        }
+        public  string DeCrypt(string input) {
+
+            char[][] key1 = ToMatrix(keyMatrix1);
+            char[][] key2 = ToMatrix(keyMatrix2);
+            char[][] alphabetMatrix = ToMatrix(AlphabetHelper.GetAlphabet(),true);
+
+            string key1str = matrixToStrin(key1);
+            string key2str = matrixToStrin(key2);
+            string alpStr = matrixToStrin(alphabetMatrix);
+
+
+            if (input.Length % 2 == 1)
+            {
+                input += "x";
+            }
+            StringBuilder builder = new StringBuilder();
+
+            for (int i = 0; i <= input.Length-2; i+=2)
+            {
+                char firstLetter = input[i];
+                char secondLetter = input[i + 1];
+
+                (int row1, int col1) = GetIndex(key1, firstLetter);
+                (int row2, int col2) = GetIndex(key2, secondLetter);
+
+                char fristDecryptedLetter = alphabetMatrix[row1][col2];
+                char secondDecryptedLetter = alphabetMatrix[row2][col1];
+
+                builder.Append(fristDecryptedLetter);
+                builder.Append(secondDecryptedLetter);
+
+            }
+
+
+            return builder.ToString();
+        }
+
+
+        private string matrixToStrin(char[][] matrix)
+        {
+            StringBuilder builder = new StringBuilder();
+
+            foreach (char[] row in matrix)
+            {
+                foreach( char c in row)
+                {
+                    builder.Append(c);
+                    builder.Append(" ");
+                }
+                builder.Append("\n");
+            }
+
+            return builder.ToString();
+        }
+
+
+
+        private (int, int) GetIndex(char[][] matrix, char letter)
+        {
+            for (int i = 0; i < matrix.Length; i++)
+            {
+                for (int j = 0; j < matrix[i].Length; j++)
+                {
+                    if (matrix[i][j] == letter)
+                    {
+                        return (i, j);
+                    }
+                }
+            }
+            return (-1, -1);
+        }
+
+        private char[][] ToMatrix(string input, bool specialKeys = false)
+        {
+            List<string> blocks = TextParser.ParseTextIntoBlocks(input, columnCount,specialKeys);
+
+            char[][] matrix = new char[blocks.Count][];
+
+            for (int i = 0; i < blocks.Count; i++)
+            {
+                matrix[i] = new char[columnCount];
+                for (int j = 0; j < columnCount; j++)
+                {
+                    matrix[i][j] = blocks[i][j];
+                }
+            }
+
+            return matrix;
+
+        }
 
 
         public static string createRandomMatris(int columnCount)
@@ -483,7 +607,7 @@ namespace kriptoloji
 
         }
 
-        public static string GetRandomRastgeleMatris1(object[] param)
+        public static string GetRandomKeyMatris1(object[] param)
         {
             string valStr = getValueByName(param, "StunSayisi");
 
@@ -498,7 +622,7 @@ namespace kriptoloji
             return createRandomMatris(columnCount);
         }
 
-        public static string GetRandomRastgeleMatris2( object[] param)
+        public static string GetRandomKeyMatris2( object[] param)
         {
             int columnCount = int.Parse(getValueByName(param, "StunSayisi"));
             return createRandomMatris(columnCount);
