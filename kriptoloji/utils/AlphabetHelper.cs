@@ -25,7 +25,7 @@ namespace kriptoloji
         public static string ShiftLatter(char latter, int shift)
         {
             int index = GetLetterIndex(latter);
-            int newIndex = (index + shift)%29;
+            int newIndex = AlphabetHelper.Mod(index + shift);
             return GetLetter(newIndex);
 
         }
