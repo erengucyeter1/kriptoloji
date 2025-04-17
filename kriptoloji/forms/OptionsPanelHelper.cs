@@ -48,10 +48,33 @@ namespace kriptoloji.forms
                         {
                             randomBtn.Click += (sender, e) =>
                             {
+
                                 if (randomValueMethod != null)
                                 {
-                                    var randomValue = randomValueMethod.Invoke(null, null);
-                                    component.Value = randomValue.ToString();
+
+                                    Object[] panelParams = new Object[panel.Controls.Count];
+                                    int paramİndex = 0;
+                                    foreach (var item in panel.Controls)
+                                    {
+                                        if (item is KeyOptionComponent)
+                                        {
+                                            var keyOption = item as KeyOptionComponent;
+                                            panelParams[paramİndex] = new KeyValuePair<string, string>(keyOption.KeyName, keyOption.GetValue);
+                                            paramİndex++;
+                                        }
+                                    }
+
+                                    try
+                                    {
+                                        var randomValue = randomValueMethod.Invoke(null, new object[] { panelParams });
+                                        component.Value = randomValue.ToString();
+
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        MessageBox.Show("Rastgele Değer Üretilirken Bir Hata Oluştu.\nLütfen Girlmesi Gereken Parametreleri Gözden Geçirin!");
+                                    }
+
                                 }
                             };
                             buttonFlag = true;

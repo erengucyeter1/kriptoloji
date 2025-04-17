@@ -74,7 +74,6 @@ namespace kriptoloji
         public static string GetShuffledAlphabet( )
         {
             string[] letters = Enum.GetNames(typeof(TurkishLetters));
-            Random random = new Random();
             for (int i = letters.Length - 1; i > 0; i--)
             {
                 int j = random.Next(0, i + 1);
