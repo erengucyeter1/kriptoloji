@@ -14,18 +14,21 @@ namespace kriptoloji.core
             this.algorithm = algorithm;
         }
 
-        public String Apply(String inputText, bool cryptFlag) 
+        public String Apply(String inputText, bool cryptFlag, bool clearFlag) 
         {
-            String cleanInput = TextParser.FilterText(inputText);
+            if (clearFlag)
+            {
+                inputText = TextParser.FilterText(inputText);
+            }
 
             if (cryptFlag)
             {
-                return algorithm.Crypt(cleanInput);
+                return algorithm.Crypt(inputText);
                 
             }
             else
             {
-                return algorithm.DeCrypt(cleanInput);
+                return algorithm.DeCrypt(inputText);
             }
 
         }
