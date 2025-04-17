@@ -89,7 +89,7 @@ namespace kriptoloji.forms
                         panel.Controls.Add(component);
                         index++;
                     }
-                    randomBtn.Size = new System.Drawing.Size(50, maxHeight- 10);
+                    randomBtn.Size = new System.Drawing.Size(55, maxHeight- 10);
                     if (buttonFlag)
                         this.panel.Controls.Add(randomBtn);
                     randomBtn.BringToFront();

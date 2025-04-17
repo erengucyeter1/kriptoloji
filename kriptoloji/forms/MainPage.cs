@@ -33,6 +33,8 @@ namespace kriptoloji.forms
 
             Dictionary<string , string> options = new Dictionary<string , string>();
 
+            bool clearFlag = true;
+
 
             foreach (KeyOptionComponent component in OptionsPanel.Controls.OfType<KeyOptionComponent>())
             {
@@ -68,6 +70,7 @@ namespace kriptoloji.forms
                     break;
                 case Methods.DörtKare:
                     this.algorithm = new DortKare(options);
+                    clearFlag = false;
                     break;
                 case Methods.Hill:
                     this.algorithm = new Hill(options);
@@ -77,14 +80,14 @@ namespace kriptoloji.forms
 
             CryptHandler cryptHandler = new CryptHandler(this.algorithm);
 
-            try
+            //try
             {
-                string result = cryptHandler.Apply(GetInputText(), this.CryptRadioButton.Checked);
+                string result = cryptHandler.Apply(GetInputText(), this.CryptRadioButton.Checked, (clearFlag || this.CryptRadioButton.Checked));
                 this.SetOutputText(result);
             }
-            catch (Exception ex)
+            //catch (Exception ex)
             {
-               MessageBox.Show(ex.Message.ToString());
+              // MessageBox.Show(ex.Message.ToString());
             }
 
             

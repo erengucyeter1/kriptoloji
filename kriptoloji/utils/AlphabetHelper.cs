@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 
 namespace kriptoloji
@@ -16,7 +17,7 @@ namespace kriptoloji
         
         public static string GetLetter(int index,string language = "tr" )
         {
-            return Enum.GetName(GetAlphabet(language), index);
+            return Enum.GetName(GetAlphabetType(), index);
 
         }
 
@@ -28,9 +29,9 @@ namespace kriptoloji
             return GetLetter(newIndex);
 
         }
-        public static int GetLetterIndex(char letter, string language = "tr")
+        public static int GetLetterIndex(char letter)
         {
-            return (int)Enum.Parse(GetAlphabet(language), letter.ToString());
+            return (int)Enum.Parse(GetAlphabetType(), letter.ToString());
         }
 
         public static string GetRandomLetter()
@@ -39,36 +40,14 @@ namespace kriptoloji
             return GetLetter(index);
         }
 
-        public static string GetRandomSpecialLetter(HashSet<string> usedChars ,string language = "tr")
+        public static string GetNextSpecialKey(int usedCount)
         {
-            if(language == "tr")
+            if(usedCount >= GetEnumLength(typeof(ExternalLettersForTurkish))){
+                return null;
+            }else
             {
-                int index = random.Next(0, 3);
-                string newChar = Enum.GetName(typeof(ExternalLettersForTurkish), index);
-
-                if(usedChars.Count == GetEnumLength(typeof(ExternalLettersForTurkish)))
-                {
-                    throw new Exception("All special letters are used");
-                }
-
-                if(usedChars.Contains(newChar))
-                {
-                    return GetRandomSpecialLetter(usedChars, language);
-                }
-                else
-                {
-                    usedChars.Add(newChar);
-                    return newChar;
-                }
-
-
+                return Enum.GetName(typeof(ExternalLettersForTurkish), usedCount);
             }
-            else if (language == "en")
-            {
-                int index = random.Next(0, 6);
-                return Enum.GetName(typeof(ExternalLettersForEnglish), index);
-            }
-            return null;
         }
 
         public static string GetShuffledAlphabet( )
@@ -84,23 +63,21 @@ namespace kriptoloji
             return string.Join("", letters);
         }
 
-        public static bool IsLetter(char c, string language = "tr") // büyük harf gelmeli
+        public static string GetAlphabet()
         {
-            return Enum.IsDefined(GetAlphabet(language), c.ToString());
+            string[] letters = Enum.GetNames(typeof(TurkishLetters));
+            return string.Join("", letters);
+        }
+
+        public static bool IsLetter(char c) // büyük harf gelmeli
+        {
+            return Enum.IsDefined(GetAlphabetType(), c.ToString());
         }
 
 
-        private static Type GetAlphabet(string language)
+        private static Type GetAlphabetType()
         {
-            switch (language)
-            {
-                case "tr":
-                    return typeof(TurkishLetters);
-                case "en":
-                    return typeof(EnglishLetters);
-                default:
-                    return null;
-            }
+            return typeof(TurkishLetters);
         }
 
         public static int ModInverse(int a, int mod = 29)

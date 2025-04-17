@@ -16,7 +16,7 @@ namespace kriptoloji
         {
 
             StringBuilder builder = new StringBuilder();
-            foreach (char c in text.ToUpper())
+            foreach (char c in text.ToLower())
             {
                 bool charCheck = char.IsLetter(c);
                 bool langCheck = AlphabetHelper.IsLetter(c);
@@ -53,7 +53,7 @@ namespace kriptoloji
             List<string> blocks = new List<string>();
 
             int remainder = text.Length % blockSize;
-            HashSet<string> usedChars = new HashSet<string>();
+            int addedSpecialLettersCount = 0;
 
             if (remainder != 0)
             {
@@ -63,9 +63,9 @@ namespace kriptoloji
                 {
                     if (specialKeys)
                     {
-                        string newChar = AlphabetHelper.GetRandomSpecialLetter(usedChars);
+                        string newChar = AlphabetHelper.GetNextSpecialKey(addedSpecialLettersCount);
+                        addedSpecialLettersCount++;
                         builder.Append(newChar);
-                        usedChars.Add(newChar);
 
                     }
                     else
