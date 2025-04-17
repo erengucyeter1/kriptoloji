@@ -463,9 +463,8 @@ namespace kriptoloji
     public class Hill : Algorithm, ICryptAlgorithm
     {
 
-        public static string[] optionNames { get; } = { "BlokUzunlugu", "AnahtarMatris" };
+        public static string[] optionNames { get; } = {"AnahtarMatris" };
 
-        int blockLenght => int.Parse(Keys["BlokUzunlugu"]);
         string inputKeyMatrix => (Keys["AnahtarMatris"]);
         public Hill(Dictionary<string, string> keys) : base(keys) { }
 
@@ -647,7 +646,7 @@ namespace kriptoloji
             return subMatrix;
         }
 
-        private int calculateDeterminant(int[,] matrix)
+        private static int calculateDeterminant(int[,] matrix)
         {
             int determinant = 0;
             int n = matrix.GetLength(0);
@@ -698,6 +697,42 @@ namespace kriptoloji
             }
             return keyMatrixValues;
         }
+
+
+        public static string GetRandomAnahtarMatris()
+        {
+            StringBuilder builder = new StringBuilder();
+            Random random = new Random();
+            int[,] matrix;
+            int blockLength = 3;
+
+            do
+            {
+                matrix = new int[blockLength, blockLength];
+                builder.Clear();
+
+                for (int i = 0; i < blockLength; i++)
+                {
+                    for (int j = 0; j < blockLength; j++)
+                    {
+                        matrix[i, j] = random.Next(0, 29);
+                        builder.Append(matrix[i, j]);
+                        if (j != blockLength - 1)
+                        {
+                            builder.Append(",");
+                        }
+                    }
+                    if (i != blockLength - 1)
+                    {
+                        builder.Append(";");
+                    }
+                }
+            } while (calculateDeterminant(matrix) == 0);
+
+            return builder.ToString();
+        }
+
+        
     }
 
 }
