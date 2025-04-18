@@ -19,9 +19,5 @@ namespace kriptoloji.enums
         Vigenere,
         DörtKare,
         Hill
-
-
-
-
     }
 }
