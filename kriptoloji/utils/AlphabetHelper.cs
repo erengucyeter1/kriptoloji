@@ -15,6 +15,10 @@ namespace kriptoloji
          en - for english
         */
         
+        public static int GetRandomInt(int min, int max)
+        {
+            return random.Next(min, max);
+        }
         public static string GetLetter(int index,string language = "tr" )
         {
             return Enum.GetName(GetAlphabetType(), index);

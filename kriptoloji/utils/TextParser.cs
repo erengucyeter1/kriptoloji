@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace kriptoloji
 {
@@ -16,7 +14,7 @@ namespace kriptoloji
         {
 
             StringBuilder builder = new StringBuilder();
-            foreach (char c in text.ToLower())
+            foreach (char c in text.ToLower(new CultureInfo("tr-TR")))
             {
                 bool charCheck = char.IsLetter(c);
                 bool langCheck = AlphabetHelper.IsLetter(c);

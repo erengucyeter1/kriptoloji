@@ -144,7 +144,7 @@ namespace kriptoloji
         {
             HashSet<char> uniqueLetters = new HashSet<char>();
 
-            foreach(char ch in RandomAlphabet)
+            foreach (char ch in randomAlphabet)
             {
                 if (uniqueLetters.Contains(ch))
                 {
@@ -159,27 +159,71 @@ namespace kriptoloji
             return uniqueLetters.ToArray();
         }
 
-        public static string GetRandomRastgeleAlfabe( object[] param)   // tüm sınıflar için aynı formatta isimlendirilmeli! GetRandom+DeğişkenAdı
+        public static string GetRandomRastgeleAlfabe(object[] param)   // tüm sınıflar için aynı formatta isimlendirilmeli! GetRandom+DeğişkenAdı
         {
-            return  AlphabetHelper.GetShuffledAlphabet();
+            return AlphabetHelper.GetShuffledAlphabet();
         }
 
-        public  string Crypt(string input) => "not implemented yet!";
-        public  string DeCrypt(string input) => "not implemented yet!";
-
-
+        public string Crypt(string input)
+        {
+            StringBuilder builder = new StringBuilder();
+            foreach (char ch in input)
+            {
+                int index = AlphabetHelper.GetLetterIndex(ch);
+                builder.Append(RandomAlphabet[index]);
+            }
+            return builder.ToString();
+        }
+        public string DeCrypt(string input)
+        {
+            StringBuilder builder = new StringBuilder();
+            foreach (char ch in input)
+            {
+                int index = Array.IndexOf(RandomAlphabet, ch);
+                builder.Append(AlphabetHelper.GetLetter(index));
+            }
+            return builder.ToString();
+        }
     }
 
     public class Permutasyon : Algorithm, ICryptAlgorithm
     {
-        public static string[] optionNames { get; } = { "BlokUzunlupu", "Sıralama" };
+        public static string[] optionNames { get; } = { "BlokUzunlugu", "Sıralama" };
 
-        int blockLenght => int.Parse(Keys["BlokUzunlupu"]);
+        int blockLenght => int.Parse(Keys["BlokUzunlugu"]);
         int[] order => Parse(Keys["Sıralama"]);
 
-        
 
 
+        public static string GetRandomBlokUzunlugu(object[] param)
+        {
+            return AlphabetHelper.GetRandomInt(3, 7).ToString();
+            
+        }
+
+        public static string GetRandomSıralama(object[] param)
+        {
+            string blockCount = getValueByName(param, "BlokUzunlugu");
+
+            int blockCountInt = int.Parse(blockCount);
+            int[] order = new int[blockCountInt];
+            for (int i = 0; i < blockCountInt; i++)
+            {
+                order[i] = i + 1;
+            }
+            
+            for (int i = order.Length - 1; i > 0; i--)
+            {
+                int j = AlphabetHelper.GetRandomInt(0, i + 1);
+                int temp = order[i];
+                order[i] = order[j];
+                order[j] = temp;
+            }
+
+            return string.Join(",",order);
+
+
+        }
 
         public Permutasyon(Dictionary<string, string> keys) : base(keys) {
         
@@ -260,7 +304,7 @@ namespace kriptoloji
             {
                 if (int.TryParse(parts[i], out int value))
                 {
-                    result[i] = value;
+                    result[i] = value - 1;
                 }
                 else
                 {
@@ -349,8 +393,110 @@ namespace kriptoloji
 
         public Rota(Dictionary<string, string> keys) : base(keys) { }
 
-        public  string Crypt(string input) => "not implemented yet!";
-        public  string DeCrypt(string input) => "not implemented yet!";
+        public string Crypt(string input)
+        {
+            StringBuilder cryptedTextBuilder = new StringBuilder();
+            int rowCount = input.Length / columnCount;
+
+            if (input.Length % columnCount != 0)
+            {
+                rowCount++;
+            }
+
+            string[,] grid = new string[rowCount, columnCount];
+            int index = 0;
+
+            for (int row = 0; row < rowCount; row++)
+            {
+                for (int col = 0; col < columnCount; col++)
+                {
+                    if (index < input.Length)
+                        grid[row, col] = input[index++].ToString();
+                    else
+                        grid[row, col] = AlphabetHelper.GetRandomLetter();
+                }
+            }
+
+            int top = 0;
+            int bottom = rowCount - 1;
+            int left = 0;
+            int right = columnCount - 1;
+
+            while (top <= bottom && left <= right)
+            {
+                for (int i = bottom; i >= top; i--)
+                    cryptedTextBuilder.Append(grid[i, left]);
+                left++;
+
+                for (int i = left; i <= right; i++)
+                    cryptedTextBuilder.Append(grid[top, i]);
+                top++;
+
+                if (left <= right)
+                {
+                    for (int i = top; i <= bottom; i++)
+                        cryptedTextBuilder.Append(grid[i, right]);
+                    right--;
+                }
+
+                if (top <= bottom)
+                {
+                    for (int i = right; i >= left; i--)
+                        cryptedTextBuilder.Append(grid[bottom, i]);
+                    bottom--;
+                }
+            }
+
+            return cryptedTextBuilder.ToString();
+        }
+        public string DeCrypt(string input)
+        {
+            StringBuilder deCryptedTextBuilder = new StringBuilder();
+
+            int rowCount = input.Length / columnCount;
+            string[,] matrix = new string[rowCount, columnCount];
+
+            int index = 0;
+            int top = 0;
+            int bottom = rowCount - 1;
+            int left = 0;
+            int right = columnCount - 1;
+
+            while (top <= bottom && left <= right)
+            {
+                for (int i = bottom; i >= top && index < input.Length; i--)
+                    matrix[i, left] = input[index++].ToString();
+                left++;
+
+                for (int i = left; i <= right && index < input.Length; i++)
+                    matrix[top, i] = input[index++].ToString();
+                top++;
+
+                if (left <= right)
+                {
+                    for (int i = top; i <= bottom && index < input.Length; i++)
+                        matrix[i, right] = input[index++].ToString();
+                    right--;
+                }
+
+                if (top <= bottom)
+                {
+                    for (int i = right; i >= left && index < input.Length; i--)
+                        matrix[bottom, i] = input[index++].ToString();
+                    bottom--;
+                }
+            }
+
+            for (int row = 0; row < rowCount; row++)
+            {
+                for (int col = 0; col < columnCount; col++)
+                {
+                    deCryptedTextBuilder.Append(matrix[row, col]);
+                }
+            }
+
+            return deCryptedTextBuilder.ToString();
+        }
     }
 
     public class ZikZak : Algorithm, ICryptAlgorithm
@@ -451,15 +597,55 @@ namespace kriptoloji
 
     public class Vigenere : Algorithm, ICryptAlgorithm
     {
-
         public static string[] optionNames { get; } = { "AnahtarKelime" };
-
         string key => Keys["AnahtarKelime"];
         int keyLength => key.Length;
         public Vigenere(Dictionary<string, string> keys) : base(keys) { }
 
-        public  string Crypt(string input) => "not implemented yet!";
-        public  string DeCrypt(string input) => "not implemented yet!";
+        public string Crypt(string input)
+        {
+            int[] keyValues = getKeyValues(key);
+            StringBuilder cryptedTextBuilder = new StringBuilder();
+
+            for (int i = 0; i < input.Length; i++)
+            {
+                int index = AlphabetHelper.GetLetterIndex(input[i]);
+                int keyIndex = keyValues[i % keyLength];
+                int newIndex = (index + keyIndex) % 29;
+
+                cryptedTextBuilder.Append(AlphabetHelper.GetLetter(newIndex));
+            }
+
+            return cryptedTextBuilder.ToString();
+        }
+        public string DeCrypt(string input)
+        {
+            int[] keyValues = getKeyValues(key);
+
+            StringBuilder deCryptedTextBuilder = new StringBuilder();
+
+            for (int i = 0; i < input.Length; i++)
+            {
+                int index = AlphabetHelper.GetLetterIndex(input[i]);
+                int keyIndex = keyValues[i % keyLength];
+                int newIndex = (index - keyIndex + 29) % 29;
+                deCryptedTextBuilder.Append(AlphabetHelper.GetLetter(newIndex));
+            }
+
+            return deCryptedTextBuilder.ToString();
+        }
+
+        private int[] getKeyValues(string key)
+        {
+            int[] keyValues = new int[key.Length];
+            for (int i = 0; i < key.Length; i++)
+            {
+                keyValues[i] = AlphabetHelper.GetLetterIndex(key[i]);
+            }
+
+            return keyValues;
+        }
+
     }
 
     public class DortKare : Algorithm, ICryptAlgorithm
@@ -476,7 +662,6 @@ namespace kriptoloji
 
         public  string Crypt(string input){
 
-            MessageBox.Show(input);
             char[][] key1 = ToMatrix(keyMatrix1);
             char[][] key2 = ToMatrix(keyMatrix2);
             char[][] alphabetMatrix = ToMatrix(AlphabetHelper.GetAlphabet(), true);
