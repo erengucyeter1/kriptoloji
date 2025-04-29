@@ -3,6 +3,7 @@ using kriptoloji.enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Windows.Forms;
 
 namespace kriptoloji.forms
@@ -27,6 +28,74 @@ namespace kriptoloji.forms
 
             MethodComboBox.DataSource = methods;
         }
+
+
+        private void InputTextBox_TextChanged(object sender, EventArgs e)
+        {
+            if(!this.DecryptRadioButton.Checked)
+            {
+                return;
+            }
+            if(string.IsNullOrEmpty(this.InputTextBox.Text))
+            {
+                return;
+            }
+
+            if (!this.InputTextBox.Text.Contains("$QuickFill$"))
+            {
+                return;
+            }
+
+            ParseInstantDecryptedData(this.InputTextBox.Text);
+
+
+
+        }
+
+
+        private void ParseInstantDecryptedData(string data)
+        {
+            string[] lines = data.Split('&');
+
+            StringBuilder stringBuilder = new StringBuilder();
+
+            Dictionary<string, string> options = new Dictionary<string, string>();
+
+            for (int i = 1; i < lines.Length; i++)
+            {
+                string line = lines[i];
+
+                string[] parts = line.Split(new char[] { ':' }, 2);
+
+                string key = parts[0].Trim();   
+
+                string value = parts.Length > 1 ? parts[1].Trim() : string.Empty;
+
+                options[key] = value;
+            }
+            string methodName = options[options.Keys.FirstOrDefault(x => x.Contains("Method"))].ToString();
+
+            MethodComboBox.SelectedIndex = (int)GetMethodFromName(methodName);
+
+            this.InputTextBox.Text = options["CryptedText"].ToString(); 
+
+            //Methods method = GetMethodFromName(methodName);
+            //SetOptionsPanel(method);
+
+            foreach (KeyOptionComponent component in OptionsPanel.Controls.OfType<KeyOptionComponent>())
+            {
+                if (options.ContainsKey(component.KeyName))
+                {
+                    component.Value = options[component.KeyName];
+                }
+                else
+                {
+                    component.Value = string.Empty;
+                }
+            }
+
+        }
+
 
         private void ApplyButton_Click(object sender, EventArgs e)
         {
@@ -84,6 +153,7 @@ namespace kriptoloji.forms
             {
                 string result = cryptHandler.Apply(GetInputText(), this.CryptRadioButton.Checked, (clearFlag || this.CryptRadioButton.Checked));
                 this.SetOutputText(result);
+                CopyData();
             }
             //catch (Exception ex)
             {
@@ -95,9 +165,35 @@ namespace kriptoloji.forms
 
         }
 
+        private void CopyData()
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.Append("$QuickFill$");
+            stringBuilder.Append("&");
+            stringBuilder.Append("Method:");
+            stringBuilder.Append(GetSelectedMethod().ToString());
+            stringBuilder.Append("&");
+            stringBuilder.Append("CryptedText:");
+            stringBuilder.Append(this.OutputTextBox.Text);
+
+            foreach(KeyOptionComponent component in OptionsPanel.Controls.OfType<KeyOptionComponent>())
+            {
+                stringBuilder.Append("&");
+                stringBuilder.Append(component.KeyName + ":" + component.Value);
+            }
+
+            Clipboard.SetText(stringBuilder.ToString());
+
+        }
+
         private void MethodComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            switch (GetSelectedMethod())
+            SetOptionsPanel(GetSelectedMethod());
+        }
+
+        private void SetOptionsPanel(Methods optionsClass)
+        {
+            switch (optionsClass)
             {
                 case Methods.Kaydırmalı:
                     optionsPanelHelper.SetPanel(typeof(Kaydirmali));
@@ -149,6 +245,15 @@ namespace kriptoloji.forms
         private void SetOutputText(string text)
         {
             this.OutputTextBox.Text = text;
+        }
+
+        private Methods GetMethodFromName(string methodName)
+        {
+            if (Enum.TryParse<Methods>(methodName, out var result))
+            {
+                return result;
+            }
+            return Methods.None;
         }
     }
 }

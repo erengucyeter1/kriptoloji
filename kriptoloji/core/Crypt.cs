@@ -792,6 +792,12 @@ namespace kriptoloji
 
         }
 
+        public static string GetRandomStunSayisi(object[] param)
+        {
+
+            return AlphabetHelper.GetRandomInt(3, 5).ToString();
+        }
+
         public static string GetRandomKeyMatris1(object[] param)
         {
             string valStr = getValueByName(param, "StunSayisi");
