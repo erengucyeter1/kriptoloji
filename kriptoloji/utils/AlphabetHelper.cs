@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Reflection;
 
 
@@ -15,6 +16,11 @@ namespace kriptoloji
          en - for english
         */
         
+
+        public  static string ToLower(string text)
+        {
+            return text.ToLower(new CultureInfo("tr-TR"));
+        }
         public static int GetRandomInt(int min, int max)
         {
             return random.Next(min, max);

@@ -27,6 +27,7 @@ namespace kriptoloji.forms
             Methods[] methods = (Methods[])Enum.GetValues(typeof(Methods));
 
             MethodComboBox.DataSource = methods;
+            MethodComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
         }
 
 
@@ -115,7 +116,6 @@ namespace kriptoloji.forms
                 case Methods.Kaydırmalı:
                     this.algorithm = new Kaydirmali(options);
                     break;
-            
                 case Methods.Doğrusal:
                     this.algorithm = new Dogrusal(options);
                     break;
@@ -144,20 +144,24 @@ namespace kriptoloji.forms
                 case Methods.Hill:
                     this.algorithm = new Hill(options);
                     break;
+                default:
+                    this.algorithm = new None(options);
+                    break;
+
 
             }
 
             CryptHandler cryptHandler = new CryptHandler(this.algorithm);
 
-            //try
+            try
             {
                 string result = cryptHandler.Apply(GetInputText(), this.CryptRadioButton.Checked, (clearFlag || this.CryptRadioButton.Checked));
                 this.SetOutputText(result);
                 CopyData();
             }
-            //catch (Exception ex)
+            catch (Exception ex)
             {
-              // MessageBox.Show(ex.Message.ToString());
+               MessageBox.Show(ex.Message.ToString());
             }
 
             
@@ -227,6 +231,7 @@ namespace kriptoloji.forms
                     break;
                 default:
                     optionsPanelHelper.SetPanel(null);
+
                     break;
             }
         }
@@ -234,8 +239,19 @@ namespace kriptoloji.forms
         private Methods GetSelectedMethod()
         {
             int index = MethodComboBox.SelectedIndex;
-            Methods SelectedMethod = (Methods)Enum.GetValues(typeof(Methods)).GetValue(index);
-            return SelectedMethod;
+            
+            try
+            {
+                return (Methods)Enum.GetValues(typeof(Methods)).GetValue(index);
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Lütfen geçerli bir şifreleme yöntemi seçin!");
+                return Methods.None;
+            }
+
+
+            
         }
 
         private string GetInputText()

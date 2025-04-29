@@ -14,7 +14,7 @@ namespace kriptoloji
         {
 
             StringBuilder builder = new StringBuilder();
-            foreach (char c in text.ToLower(new CultureInfo("tr-TR")))
+            foreach (char c in AlphabetHelper.ToLower(text))
             {
                 bool charCheck = char.IsLetter(c);
                 bool langCheck = AlphabetHelper.IsLetter(c);
@@ -48,6 +48,7 @@ namespace kriptoloji
 
         public static List<string> ParseTextIntoBlocks(string text, int blockSize, bool specialKeys = false)
         {
+
             List<string> blocks = new List<string>();
 
             int remainder = text.Length % blockSize;

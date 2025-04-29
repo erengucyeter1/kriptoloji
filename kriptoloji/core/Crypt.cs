@@ -49,6 +49,19 @@ namespace kriptoloji
     }
 
 
+    public class None : Algorithm, ICryptAlgorithm
+    {
+        public None(Dictionary<string, string> keys) : base(keys) { }
+        public string Crypt(string input)
+        {
+            return input;
+        }
+        public string DeCrypt(string input)
+        {
+            return input;
+        }
+    }
+
     public class Kaydirmali : Algorithm, ICryptAlgorithm
     {
 
@@ -62,6 +75,10 @@ namespace kriptoloji
 
         public string Crypt(string input)
         {
+            if(shift < 0)
+            {
+                throw new Exception("Kaydırma miktarı 0 dan küçük olamaz!");
+            }
             StringBuilder builder = new StringBuilder();
 
             foreach(char ch in input)
@@ -94,6 +111,15 @@ namespace kriptoloji
 
         public string Crypt(string input)
         {
+            if (a <= 0 )
+            {
+                throw new Exception("a değeri sıfırdan büyük olmalıdır!");
+            }else if( b < 0)
+            {
+                throw new Exception("b değeri sıfırdan küçük olamaz!");
+            }
+
+
             StringBuilder builder = new StringBuilder();
 
             foreach (char ch in input)
@@ -108,6 +134,15 @@ namespace kriptoloji
 
         public  string DeCrypt(string input)
         {
+            if (a <= 0)
+            {
+                throw new Exception("a değeri sıfırdan büyük olmalıdır!");
+            }
+            else if (b < 0)
+            {
+                throw new Exception("b değeri sıfırdan küçük olamaz!");
+            }
+
             StringBuilder builder = new StringBuilder();
 
             int inverseA = AlphabetHelper.ModInverse(a);
@@ -134,7 +169,7 @@ namespace kriptoloji
     {
         public static string[] optionNames { get; } = { "RastgeleAlfabe" };
 
-        char[] RandomAlphabet => Parse(Keys["RastgeleAlfabe"]);
+        char[] RandomAlphabet => Parse(AlphabetHelper.ToLower(Keys["RastgeleAlfabe"]));
 
 
         public YerDegistirme(Dictionary<string, string> keys) : base(keys) { }
@@ -144,11 +179,13 @@ namespace kriptoloji
         {
             HashSet<char> uniqueLetters = new HashSet<char>();
 
+            
+
             foreach (char ch in randomAlphabet)
             {
                 if (uniqueLetters.Contains(ch))
                 {
-                    throw new Exception("Duplicate letters in random alphabet");
+                    throw new Exception("Anahtar alfabede aynı harf birden fazla sa geçemez!");
                 }
                 else
                 {
@@ -234,7 +271,7 @@ namespace kriptoloji
 
             if(!CheckOrder(order, blockLenght))
             {
-                throw new Exception("Invalid order");
+                throw new Exception("Hatalı sıralama! \n Örnek:\n Blok uzunluğu: 4\nSıralama: 3,1,4,2");
             }
 
             StringBuilder builder = new StringBuilder();
@@ -346,9 +383,15 @@ namespace kriptoloji
 
         int columnCount => int.Parse(Keys["StunSayisi"]);
 
+
         public SayiAnahtarli(Dictionary<string, string> keys) : base(keys) { }
 
         public  string Crypt(string input) {
+
+            if(columnCount < 1)
+            {
+                throw new Exception("Kolon sayısı en az 1 olabilir!");
+            }
 
             StringBuilder builder = new StringBuilder();
             List<string> blocks = TextParser.ParseTextIntoBlocks(input, columnCount);
@@ -395,6 +438,11 @@ namespace kriptoloji
 
         public string Crypt(string input)
         {
+            if (columnCount < 1)
+            {
+                throw new Exception("Kolon sayısı en az 1 olabilir!");
+            }
+
             StringBuilder cryptedTextBuilder = new StringBuilder();
             int rowCount = input.Length / columnCount;
 
@@ -451,6 +499,11 @@ namespace kriptoloji
         }
         public string DeCrypt(string input)
         {
+            if (columnCount < 1)
+            {
+                throw new Exception("Kolon sayısı en az 1 olabilir!");
+            }
+
             StringBuilder deCryptedTextBuilder = new StringBuilder();
 
             int rowCount = input.Length / columnCount;
@@ -507,6 +560,11 @@ namespace kriptoloji
 
         public  string Crypt(string input){
 
+            if (rowCount < 2)
+            {
+                throw new Exception("Satır sayısı en az 2 olmalıdır!");
+            }
+
             StringBuilder builder = new StringBuilder();
             List<char[]> rows = new List<char[]>();
             int amount = 1;
@@ -544,6 +602,11 @@ namespace kriptoloji
         }
         public  string DeCrypt(string input)
         {
+            if (rowCount < 2)
+            {
+                throw new Exception("Satır sayısı en az 2 olmalıdır!");
+            }
+
             StringBuilder builder = new StringBuilder();
             List<char[]> rows = new List<char[]>();
             int amount = 1;
@@ -598,7 +661,7 @@ namespace kriptoloji
     public class Vigenere : Algorithm, ICryptAlgorithm
     {
         public static string[] optionNames { get; } = { "AnahtarKelime" };
-        string key => Keys["AnahtarKelime"];
+        string key => AlphabetHelper.ToLower(Keys["AnahtarKelime"]);
         int keyLength => key.Length;
         public Vigenere(Dictionary<string, string> keys) : base(keys) { }
 
@@ -653,14 +716,20 @@ namespace kriptoloji
         public static string[] optionNames { get; } = { "StunSayisi", "KeyMatris1", "KeyMatris2" };
 
         int columnCount => int.Parse(Keys["StunSayisi"]);
-        string keyMatrix1 => Keys["KeyMatris1"];
-        string keyMatrix2 => Keys["KeyMatris2"];
+        string keyMatrix1 => AlphabetHelper.ToLower(Keys["KeyMatris1"]);
+        string keyMatrix2 => AlphabetHelper.ToLower(Keys["KeyMatris2"]);
 
 
 
         public DortKare(Dictionary<string, string> keys) : base(keys) { }
 
         public  string Crypt(string input){
+
+            if (columnCount < 1)
+            {
+                throw new Exception("Kolon sayısı en az 1 olabilir!");
+            }
+
 
             char[][] key1 = ToMatrix(keyMatrix1);
             char[][] key2 = ToMatrix(keyMatrix2);
@@ -694,6 +763,11 @@ namespace kriptoloji
             return builder.ToString();
         }
         public  string DeCrypt(string input) {
+
+            if (columnCount < 1)
+            {
+                throw new Exception("Kolon sayısı en az 1 olabilir!");
+            }
 
             char[][] key1 = ToMatrix(keyMatrix1);
             char[][] key2 = ToMatrix(keyMatrix2);
@@ -831,14 +905,23 @@ namespace kriptoloji
         public string Crypt(string input)
         {
             string[,] keyMatrix = TextParser.ParseStringToMatrix(inputKeyMatrix);
+           
 
             int count = input.Length / keyMatrix.GetLength(0);
             int keyMatrixLength = keyMatrix.GetLength(0);
             int[,] keyMatrixValues = getMatrixValues(keyMatrix);
 
-            if(calculateDeterminant(keyMatrixValues) == 0)
+
+            if (keyMatrix.GetLength(1) < 2) // Corrected the indexing to use GetLength for the second dimension  
             {
-                throw new Exception("Key matrix is not invertible");
+                throw new Exception("Anahtar matris hatalı! Matrisin sütun sayısı en az 2 olmalıdır.");
+            }
+
+
+            if (calculateDeterminant(keyMatrixValues) == 0)
+            {
+                throw new Exception("Anahtar matris terslenebilir olmalıdır, determinant değeri 0 olamaz!");
+             
             }
 
             StringBuilder cryptedTextBuilder = new StringBuilder();
@@ -878,9 +961,15 @@ namespace kriptoloji
             int keyMatrixLength = keyMatrix.GetLength(0);
             int determinant = calculateDeterminant(keyMatrixValues);
 
-            if(determinant == 0)
+            if (keyMatrix.GetLength(1) < 2) // Corrected the indexing to use GetLength for the second dimension  
             {
-                throw new Exception("Key matrix is not invertible");
+                throw new Exception("Anahtar matris hatalı! Matrisin sütun sayısı en az 2 olmalıdır.");
+                
+            }
+
+            if (calculateDeterminant(keyMatrixValues) == 0)
+            {
+                throw new Exception("Anahtar matris hatalı!\n1,2,3;4,5,6;7,8,9 formatında, terslenebilir olmalı!");
             }
 
             int[,] minors = calculateMinors(keyMatrixValues);
@@ -1052,6 +1141,7 @@ namespace kriptoloji
                 for (int j = 0; j < matrixLength; j++)
                 {
                     int.TryParse(keyMatrix[i, j], out int parsedNumber);
+                    
                     keyMatrixValues[i, j] = parsedNumber;
                 }
             }
